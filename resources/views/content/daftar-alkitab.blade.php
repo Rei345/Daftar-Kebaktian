@@ -47,27 +47,24 @@
 
     {{-- Form Pencarian --}}
     
-    <form action="{{ route('alkitab.search') }}" method="GET" class="mb-4">
-        
-        <div class="mb-3">
-            <label for="version_code" class="form-label">Pilih Bahasa/Versi:</label>
-            <select class="form-select" id="version_code" name="version_code">
+    <form action="{{ route('alkitab.search') }}" method="GET" class="mb-2">
+
+        <div class="input-group mb-3">
+            <select class="form-select" id="version_code" name="version_code" style="max-width: 300px;">
                 @foreach ($versions as $code => $name)
                     <option value="{{ $code }}" {{ $code == $selectedVersion ? 'selected' : '' }}>
                         {{ $name }}
                     </option>
                 @endforeach
             </select>
-        </div>
-        <div class="mb-3">
-            <label for="passage_input" class="form-label">Masukkan Pasal/Ayat:</label>
-            <input type="text" class="form-control" id="passage_input" name="passage_input"
-                    placeholder="Contoh: 1 Musa 1:2-3 atau Kej 1:2"
+            <input  type="text" id="passage_input" name="passage_input" class="form-control" 
+                    placeholder="Masukkan Pasal/Ayat"
                     value="{{ old('passage_input', $passageInput ?? '') }}" required>
-            @error('passage_input')
-                <div class="text-danger mt-1">{{ $message }}</div>
-            @enderror
+            <button class="btn btn-primary" type="submit">Cari</button>
         </div>
+        @error('passage_input')
+            <div class="text-danger mt-1">{{ $message }}</div>
+        @enderror
         @if (session('error'))
             <div class="alert alert-danger">{{ session('error') }}</div>
         @endif
@@ -77,7 +74,6 @@
         @if (session('error_book_list'))
             <div class="alert alert-warning">{{ session('error_book_list') }}</div>
         @endif
-        <button type="submit" class="btn btn-primary">Cari</button>
     </form>
 
     <hr>

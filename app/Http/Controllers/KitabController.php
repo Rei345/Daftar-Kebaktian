@@ -46,7 +46,7 @@ class KitabController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->route('nama.route.form.Anda')->withErrors($validator)->withInput();
+            return redirect()->route('index.alkitab')->withErrors($validator)->withInput();
         }
 
         $versionCode = $request->input('version_code');
@@ -65,7 +65,7 @@ class KitabController extends Controller
                 $bookAbbreviations[strtolower(str_replace(' ', '', $bookItem['name']))] = $bookItem['abbr'];
             }
         } else {
-            return redirect()->route('nama.route.form.Anda')->with('error', 'Gagal memuat daftar kitab untuk parsing input Anda.')->withInput();
+            return redirect()->route('index.alkitab')->with('error', 'Gagal memuat daftar kitab untuk parsing input Anda.')->withInput();
         }
 
         // 2. Parsing string passage_input
@@ -83,11 +83,11 @@ class KitabController extends Controller
             $bookAbbr = $bookAbbreviations[$bookNameOrAbbr] ?? null;
 
         } else {
-            return redirect()->route('nama.route.form.Anda')->withErrors(['passage_input' => 'Format pasal/ayat tidak valid. Contoh: "Kejadian 1:2-3" atau "Kej 1:2-3".'])->withInput();
+            return redirect()->route('index.alkitab')->withErrors(['passage_input' => 'Format pasal/ayat tidak valid. Contoh: "Kejadian 1:2-3" atau "Kej 1:2-3".'])->withInput();
         }
 
         if (!$bookAbbr) {
-            return redirect()->route('nama.route.form.Anda')->withErrors(['passage_input' => 'Nama Kitab tidak dikenali.'])->withInput();
+            return redirect()->route('index.alkitab')->withErrors(['passage_input' => 'Nama Kitab tidak dikenali.'])->withInput();
         }
 
         // 3. Bangun URL API untuk seluruh bab
@@ -103,13 +103,11 @@ class KitabController extends Controller
             return null; // Mengembalikan null jika gagal
         });
 
-        // Inisialisasi $bookInfo, $verses, $versionName di sini
-        // Pastikan $bookInfo didefinisikan sebelum compact
         $bookInfo = null; // Default value
         $verses = [];    // Default value
 
         if (is_null($apiResponseData) || !isset($apiResponseData['book'])) {
-            return redirect()->route('nama.route.form.Anda')->withErrors(['api_error' => 'Gagal mengambil data dari API atau kitab/bab tidak ditemukan.'])->withInput();
+            return redirect()->route('index.alkitab')->withErrors(['api_error' => 'Gagal mengambil data dari API atau kitab/bab tidak ditemukan.'])->withInput();
         }
 
         // Sekarang kita tahu $apiResponseData valid dan memiliki 'book'
