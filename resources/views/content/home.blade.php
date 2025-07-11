@@ -125,7 +125,7 @@
                     <div class="card card-body-compact h-100 d-flex align-items-center justify-content-center bg-light text-primary border-primary">
                         <div class="fw-bold fs-2 text-center" id="displayHariMinggu">
                             @if (isset($ibadah->tanggal_ibadah))
-                                {{ \Carbon\Carbon::parse($ibadah->tanggal_ibadah)->translatedFormat('l') }} {{-- Menampilkan nama hari, misal "Minggu" --}}
+                                {{ \Carbon\Carbon::parse($ibadah->tanggal_ibadah)->locale('id')->translatedFormat('l') }}
                             @else
                                 HARI
                             @endif
@@ -139,7 +139,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="card card-body-compact h-100 d-flex align-items-center justify-content-center bg-light text-primary border-primary">
-                        <div class="fw-bold fs-2 text-center" id="displayTanggal">{{ \Carbon\Carbon::parse($ibadah->tanggal_ibadah)->translatedFormat('d F Y') }}</div>
+                        <div class="fw-bold fs-2 text-center" id="displayTanggal">{{ \Carbon\Carbon::parse($ibadah->tanggal_ibadah)->locale('id')->translatedFormat('d F Y') }}</div>
                     </div>
                 </div>
             </div>
@@ -157,17 +157,17 @@
                 <ul class="list-unstyled">
                     <li class="mb-1">
                         {{-- Pertimbangkan untuk membuat link ini interaktif menuju halaman Alkitab --}}
-                        <a class="fs-2 fw-semibold text-decoration-none text-reset" href="#">
+                        <a class="fs-2 fw-semibold text-decoration-none text-reset" href="{{ route('alkitab-home.search', ['version_code' => $ibadah->version_code, 'passage_input' => $ibadah->evangelium]) }}">
                             <i class="fas fa-chevron-right me-2 text-primary"></i> <span id="displayEvangelium">Evangelium: {{ $ibadah->evangelium }}</span>
                         </a>
                     </li>
                     <li class="mb-1">
-                        <a class="fs-2 fw-semibold text-decoration-none text-reset" href="#">
+                        <a class="fs-2 fw-semibold text-decoration-none text-reset" href="{{ route('alkitab-home.search', ['version_code' => $ibadah->version_code, 'passage_input' => $ibadah->epistel]) }}">
                             <i class="fas fa-chevron-right me-2 text-primary"></i> <span id="displayEpistel">Epistel: {{ $ibadah->epistel }}</span>
                         </a>
                     </li>
                     <li>
-                        <a class="fs-2 fw-semibold text-decoration-none text-reset" href="#">
+                        <a class="fs-2 fw-semibold text-decoration-none text-reset" href="{{ route('alkitab-home.search', ['version_code' => $ibadah->version_code, 'passage_input' => $ibadah->s_patik]) }}">
                             <i class="fas fa-chevron-right me-2 text-primary"></i> <span id="displaySPatik">S.Patik: {{ $ibadah->s_patik }}</span>
                         </a>
                     </li>

@@ -191,7 +191,7 @@
                                 <th style="width: 50px;">No</th>
                                 <th style="width: 150px;">Tanggal</th>
                                 <th>Nama Minggu</th>
-                                <th>Tema Khotbah</th> {{-- Menambahkan kolom Tema Khotbah --}}
+                                <th>Tema Khotbah</th> 
                                 <th style="width: 250px;">Aksi</th>
                             </tr>
                         </thead>
@@ -201,11 +201,9 @@
                                     <td>{{ $loop->iteration + ($ibadahs->currentPage() - 1) * $ibadahs->perPage() }}</td>
                                     <td>{{ \Carbon\Carbon::parse($ibadah->tanggal_ibadah)->format('d F Y') }}</td>
                                     <td>{{ $ibadah->nama_minggu }}</td>
-                                    <td>{{ Str::limit($ibadah->tema_khotbah, 70, '...') }}</td> {{-- Tema khotbah dibatasi --}}
+                                    <td>{{ Str::limit($ibadah->tema_khotbah, 70, '...') }}</td>
                                     <td>
                                         <div class="action-buttons">
-                                            {{-- Tombol Lihat Detail (Jika Anda punya halaman detail terpisah) --}}
-                                            {{-- Jika ingin detail ditampilkan di modal yang sama, Anda perlu JS tambahan --}}
                                             <a href="{{ route('ibadah.show', $ibadah->id) }}" class="btn btn-info btn-sm" title="Lihat Detail">
                                                 <i class="fas fa-eye"></i> Lihat
                                             </a>
@@ -227,10 +225,10 @@
                                             </button>
 
                                             {{-- Tombol Hapus --}}
-                                            <form action="{{ route('ibadah.destroy', $ibadah->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ibadah tanggal {{ \Carbon\Carbon::parse($ibadah->tanggal_ibadah)->format('d F Y') }} ini?');">
+                                            <form action="{{ route('ibadah.destroy', $ibadah->id) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm" title="Hapus">
+                                                <button type="submit" class="hapus btn btn-danger btn-sm" title="Hapus">
                                                     <i class="fas fa-trash"></i> Hapus
                                                 </button>
                                             </form>
@@ -331,7 +329,7 @@
                                     @foreach(old('daftar_ende') as $index => $endeItem)
                                         <div class="ende-item" data-index="{{ $index }}">
                                             <input type="text" class="form-control form-control-sm @error("daftar_ende.{$index}.nomor") is-invalid @enderror" name="daftar_ende[{{ $index }}][nomor]" placeholder="Nomor Ende (ex: 74:1-2)" value="{{ $endeItem['nomor'] ?? '' }}">
-                                            <input type="text" class="form-control form-control-sm ms-2" name="daftar_ende[${newIndex}][catatan]" placeholder="Catatan (ex: P.Pelean 3)" value="${catatan || ''}">
+                                            <input type="text" class="form-control form-control-sm ms-2 @error("daftar_ende.{$index}.catatan") is-invalid @enderror" name="daftar_ende[{{ $index }}][catatan]" placeholder="Catatan (ex: P.Pelean 3)" value="{{ $endeItem['catatan'] ?? '' }}"> {{-- <--- PERBAIKAN DI SINI --}}
                                             <div class="ende-actions ms-2">
                                                 <button type="button" class="btn btn-danger btn-sm remove-ende-item"><i class="fas fa-minus"></i></button>
                                             </div>
@@ -392,8 +390,8 @@
                 endeItemDiv.dataset.index = newIndex;
 
                 endeItemDiv.innerHTML = `
-                    <input type="text" class="form-control form-control-sm" name="daftar_ende[${newIndex}][nomor]" placeholder="Nomor Ende (ex: 74:1-2)" value="${nomor}">
-                    <input type="text" class="form-control form-control-sm ms-2" name="daftar_ende[${newIndex}][catatan]" placeholder="Catatan (ex: P.Pelean 3)" value="${catatan}">
+                    <input type="text" class="form-control form-control-sm" name="daftar_ende[${newIndex}][nomor]" placeholder="Nomor Ende (ex: 74:1-2)" value="${nomor || ''}">
+                    <input type="text" class="form-control form-control-sm ms-2" name="daftar_ende[${newIndex}][catatan]" placeholder="Catatan (ex: P.Pelean 3)" value="${catatan || ''}">
                     <div class="ende-actions ms-2">
                         <button type="button" class="btn btn-danger btn-sm remove-ende-item"><i class="fas fa-minus"></i></button>
                     </div>
@@ -526,7 +524,7 @@
                     // Populate ende inputs from old data if validation failed
                     const oldDaftarEnde = @json(old('daftar_ende'));
                     if (oldDaftarEnde) {
-                         resetEndeInputs(oldDaftarEnde);
+                        resetEndeInputs(oldDaftarEnde);
                     } else {
                         // If no old daftar_ende but there's a validation error, still ensure one empty row
                         resetEndeInputs();
@@ -548,6 +546,38 @@
 
             // Ensure the initial state of remove buttons is correct when page loads
             updateRemoveButtons();
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll(".hapus").forEach((button) => {
+                button.addEventListener("click", (event) => {
+                    event.preventDefault(); // Menghentikan submit form default
+
+                    const form = button.closest('form'); // Dapatkan form terdekat dari tombol
+
+                    Swal.fire({
+                        title: "Apakah kamu yakin?",
+                        text: "Kamu akan menghapus data ini",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#3085d6",
+                        cancelButtonColor: "#d33",
+                        confirmButtonText: "Ya, Hapus saja!",
+                        cancelButtonText: "Batal"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                            Swal.fire({
+                                title: "Dihapus!",
+                                text: "Data berhasil dihapus.",
+                                icon: "success"
+                            });
+                        }
+                    });
+                });
+            });
         });
     </script>
 </body>

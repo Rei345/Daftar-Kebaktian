@@ -21,6 +21,6 @@ Route::get('alkitab/search-process', [KitabController::class, 'processSearch'])-
 Route::resource('ibadah', IbadahController::class)->except(['show', 'create', 'edit']);
 Route::get('/ibadah/{ibadah}', [IbadahController::class, 'show'])->name('ibadah.show');
 
-
-
 Route::get('/home/ibadah', [IbadahController::class, 'index'])->name('ibadah.index');
+
+Route::get('/alkitab-home/search', [HomeController::class, 'processSearch'])->name('alkitab-home.search');
