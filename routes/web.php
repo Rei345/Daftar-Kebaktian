@@ -23,4 +23,5 @@ Route::get('/ibadah/{ibadah}', [IbadahController::class, 'show'])->name('ibadah.
 
 Route::get('/home/ibadah', [IbadahController::class, 'index'])->name('ibadah.index');
 
-Route::get('/alkitab-home/search', [HomeController::class, 'processSearch'])->name('alkitab-home.search');
+Route::get('/alkitab-home/search', [HomeController::class, 'alkitabSearch'])->name('alkitab-home.search');
+Route::get('/ende-home/search', [HomeController::class, 'endeSearch'])->name('ende-home.search');

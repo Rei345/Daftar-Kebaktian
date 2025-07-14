@@ -118,8 +118,14 @@
     </nav>
     
     <div class="container py-3">
-        @if (isset($ibadah) && $ibadah) {{-- Cek apakah variabel $ibadah ada dan tidak null --}}
-            {{-- Tampilkan detail ibadah --}}
+        
+        @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
+        
+        @if (isset($ibadah) && $ibadah)
             <div class="row g-1 mb-3 info-boxes">
                 <div class="col-md-4">
                     <div class="card card-body-compact h-100 d-flex align-items-center justify-content-center bg-light text-primary border-primary">
@@ -147,7 +153,7 @@
             <div class="card p-3 mb-3 image-text-section d-flex flex-md-row align-items-center">
                 <img src="{{ url('assets/img/hki.jpeg') }}" alt="Gambar HKI" class="me-md-3 mb-2 mb-md-0 rounded-3">
                 <div class="fw-semibold text-center flex-fill fs-1" id="displayTema">
-                    {{ $ibadah->tema_khotbah }} {{-- Menggunakan tema_khotbah sesuai gambar edit modal --}}
+                    {{ $ibadah->tema_khotbah }}
                 </div>
                 <img src="{{ url('assets/img/hki.jpeg') }}" alt="Gambar HKI" class="ms-md-3 mt-2 mt-md-0 rounded-3 d-none d-md-block">
             </div>
@@ -156,7 +162,6 @@
                 <h3 class="fw-bold mb-2 fs-3">Bacaan Alkitab</h3>
                 <ul class="list-unstyled">
                     <li class="mb-1">
-                        {{-- Pertimbangkan untuk membuat link ini interaktif menuju halaman Alkitab --}}
                         <a class="fs-2 fw-semibold text-decoration-none text-reset" href="{{ route('alkitab-home.search', ['version_code' => $ibadah->version_code, 'passage_input' => $ibadah->evangelium]) }}">
                             <i class="fas fa-chevron-right me-2 text-primary"></i> <span id="displayEvangelium">Evangelium: {{ $ibadah->evangelium }}</span>
                         </a>
@@ -177,15 +182,13 @@
             <div class="card p-3 mb-3">
                 <h3 class="fw-bold mb-2 fs-3">ENDE</h3>
                 <div class="row row-cols-1 row-cols-md-3 g-2" id="displayEndeList">
-                    {{-- Langsung loop $ibadah->daftar_ende --}}
-                    @foreach ($ibadah->daftar_ende as $index => $endeItem) {{-- Tambahkan $index --}}
-                        {{-- Cek apakah objek endeItem ada dan memiliki properti 'nomor' --}}
+                    @foreach ($ibadah->daftar_ende as $index => $endeItem) 
                         @if (isset($endeItem['nomor'])) 
                             <div class="col">
-                                <a class="fs-2 fw-semibold text-decoration-none text-reset d-block py-0" href="#">
+                                <a class="fs-2 fw-semibold text-decoration-none text-reset d-block py-0" href="{{ route('ende-home.search', ['nomor' => $endeItem['nomor']]) }}">
                                     <i class="fas fa-music me-2 text-info"></i> 
-                                    {{ ($index + 1) }}. {{ $endeItem['nomor'] }} {{-- Menambahkan nomor urut --}}
-                                    @if (!empty($endeItem['catatan'])) {{-- Gunakan !empty untuk cek string kosong/null --}}
+                                    {{ ($index + 1) }}. {{ $endeItem['nomor'] }}
+                                    @if (!empty($endeItem['catatan']))
                                         ({{ $endeItem['catatan'] }})
                                     @endif
                                 </a>
@@ -196,7 +199,6 @@
             </div>
 
         @else
-            {{-- Tampilkan pesan default atau komponen beranda jika tidak ada ID ibadah --}}
             <div class="alert alert-info text-center" role="alert">
                 <h4 class="alert-heading">Selamat Datang di ParHKI!</h4>
                 <p>Silakan pilih ibadah dari daftar untuk melihat detailnya.</p>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Ende;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
@@ -9,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 class HomeController extends Controller
 {
-    public function processSearch(Request $request)
+    public function alkitabSearch(Request $request)
     {
         // 1. Validasi input form
         $validator = Validator::make($request->all(), [
@@ -23,9 +24,6 @@ class HomeController extends Controller
                             ->withInput()
                             ->with('error', 'Format bacaan Alkitab tidak valid.');
         }
-        // if ($validator->fails()) {
-        //     return redirect()->route('index.alkitab')->withErrors($validator)->withInput();
-        // }
 
         $versionCode = $request->input('version_code');
         $passageInput = trim($request->input('passage_input'));
@@ -97,9 +95,6 @@ class HomeController extends Controller
         if (is_null($apiResponseData) || !isset($apiResponseData['book'])) {
             return redirect()->back()->withInput()->withErrors(['api_error' => 'Gagal mengambil data dari API atau bacaan tidak ditemukan. Silakan periksa formatnya.']);
         }
-        // if (is_null($apiResponseData) || !isset($apiResponseData['book'])) {
-        //     return redirect()->route('index.alkitab')->withErrors(['api_error' => 'Gagal mengambil data dari API atau kitab/bab tidak ditemukan.'])->withInput();
-        // }
 
         $bookInfo = $apiResponseData['book']; // Assign value to $bookInfo
 
@@ -135,11 +130,108 @@ class HomeController extends Controller
             'selectedVersion' => $selectedVersion,
             'bookAbbreviations' => $bookAbbreviations,
             'bookInfo' => $bookInfo,
-            'verses' => $filteredVerses, // <-- Kirim $filteredVerses, tapi di view akan diakses sebagai $verses
+            'verses' => $filteredVerses, 
             'versionName' => $versionName,
             'passageInput' => $originalPassage,
             'goldenVerse' => $goldenVerse,
             'note' => $note,
         ]);
+    }
+
+    public function endeSearch(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nomor' => 'required|string|max:100',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput()->with('error', 'Format Nomor Buku Ende tidak sesuai.');
+        }
+
+        $numberInput = trim($request->input('nomor'));
+        $numberInput = preg_replace('/\.\.\./', '', $numberInput);
+
+        $songNumber = null;
+        $startVerse = null;
+        $endVerse = null;
+        $operator = null;
+
+        if (preg_match('/^(\d+[a-zA-Z]?)(?:\s*:\s*(\d+)(?:(\s*[-+]\s*)(\d+))?)?$/', $numberInput, $matches)) {
+            $songNumber = $matches[1];
+            if (isset($matches[2])) {
+                $startVerse = (int) $matches[2];
+
+                if (isset($matches[3]) && isset($matches[4])) {
+                    $operator = $matches[3];
+                    $endVerse = (int) $matches[4];
+                } else {
+                    $endVerse = $startVerse;
+                }
+            }
+        } else {
+            return redirect()->back()->with('error', 'Format Nomor Buku Ende tidak valid')->withInput();
+        }
+
+        $cleanSongNumberForDB = preg_replace('/[^0-9]/', '', $songNumber);
+
+        $song = Ende::where('song_number', $cleanSongNumberForDB)->first();
+        if (!$song) {
+            return redirect()->back()->with('error', 'Lagu dengan nomor ' . $songNumber . ' tidak ditemukan.')->withInput();
+        }
+
+        $songTitle = $song->song_title;
+        $songLyric = $song->song_lyric;
+
+        $filteredLyric = '';
+        $verses = [];
+
+        // 1. Memecah string lirik menjadi array per ayat
+        preg_match_all('/\b(\d+)\.\s(.*?)(?=\s\b\d+\.|\s*$)/s', $songLyric, $matches, PREG_SET_ORDER);
+        foreach ($matches as $match) {
+            $verseNumber = (int) $match[1];
+            $verseContent = trim($match[2]);
+            $verses[$verseNumber] = $verseContent;
+        }
+
+        // 2. Filtering berdasarkan operator
+        if ($startVerse !== null) {
+            $tempLyric = [];
+
+            if ($operator === '-') {
+                if ($endVerse === null) {
+                    foreach ($verses as $verseNum => $verseContent) {
+                        if ($verseNum >= $startVerse) {
+                            $tempLyric[] = "{$verseNum}. {$verseContent}";
+                        }
+                    }
+                } else {
+                    foreach ($verses as $verseNum => $verseContent) {
+                        if ($verseNum >= $startVerse && $verseNum <= $endVerse) {
+                            $tempLyric[] = "{$verseNum}. {$verseContent}";
+                        }
+                    }
+                }
+            } elseif ($operator === '+') {
+                foreach ($verses as $verseNum => $verseContent) {
+                    if ($verseNum === $startVerse || $verseNum === $endVerse) {
+                        $tempLyric[] = "{$verseNum}. {$verseContent}";
+                    }
+                }
+            } else {
+                if (isset($verses[$startVerse])) {
+                    $tempLyric[] = "{$startVerse}. {$verses[$startVerse]}";
+                }
+            }
+            
+            $filteredLyric = implode("\n\n", $tempLyric);
+
+            if (empty($filteredLyric)) {
+                return redirect()->back()->with('error', 'Ayat yang diminta tidak ditemukan dalam lagu ini.')->withInput();
+            }
+        } else {
+            $filteredLyric = $songLyric;
+        }
+
+        return view ('content.detail-ende', compact('song', 'songTitle', 'filteredLyric', 'songNumber', 'startVerse', 'endVerse', 'operator'));
     }
 }
