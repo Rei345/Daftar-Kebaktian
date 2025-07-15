@@ -83,7 +83,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
         <div class="container">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="{{ route('home') }}">
                 <i class="fas fa-book-bible me-2"></i> ParHKI
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -296,7 +296,7 @@
                                     <tr>
                                         <td>${ende.song_number}</td>
                                         <td>${ende.song_title}</td>
-                                        <td><button type="button" class="btn btn-info btn-sm">Detail</button></td>
+                                        <td><a href="{{ route('ende-home.search', ['nomor' => '']) }} ${ende.song_number}" class="btn btn-info btn-sm">Detail</a></td>
                                     </tr>
                                 `;
                             });

@@ -21,7 +21,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm py-2">
         <div class="container">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="{{ route('home') }}">
                 <i class="fas fa-book-bible me-2"></i> ParHKI
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

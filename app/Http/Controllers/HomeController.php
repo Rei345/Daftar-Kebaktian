@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ende;
+use App\Models\Ibadah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
@@ -10,6 +11,12 @@ use Illuminate\Support\Facades\Validator;
 
 class HomeController extends Controller
 {
+    public function index() 
+    {
+        $ibadah = Ibadah::latest()->first();
+        return view ('content.awal', compact('ibadah'));
+    }
+
     public function alkitabSearch(Request $request)
     {
         // 1. Validasi input form
@@ -149,20 +156,23 @@ class HomeController extends Controller
         }
 
         $numberInput = trim($request->input('nomor'));
-        $numberInput = preg_replace('/\.\.\./', '', $numberInput);
 
         $songNumber = null;
         $startVerse = null;
         $endVerse = null;
         $operator = null;
+        $isInfiniteRange = false;
 
-        if (preg_match('/^(\d+[a-zA-Z]?)(?:\s*:\s*(\d+)(?:(\s*[-+]\s*)(\d+))?)?$/', $numberInput, $matches)) {
+        if (preg_match('/^(\d+[a-zA-Z]?)(?:\s*:\s*(\d+)(?:(\s*[-+])\s*(\d+)|(\s*\.\.\.))?)?$/i', $numberInput, $matches)) {
             $songNumber = $matches[1];
+    
             if (isset($matches[2])) {
                 $startVerse = (int) $matches[2];
-
-                if (isset($matches[3]) && isset($matches[4])) {
-                    $operator = $matches[3];
+    
+                if (isset($matches[5])) { 
+                    $isInfiniteRange = true;
+                } elseif (isset($matches[3]) && isset($matches[4])) {
+                    $operator = trim($matches[3]);
                     $endVerse = (int) $matches[4];
                 } else {
                     $endVerse = $startVerse;
@@ -188,27 +198,17 @@ class HomeController extends Controller
         // 1. Memecah string lirik menjadi array per ayat
         preg_match_all('/\b(\d+)\.\s(.*?)(?=\s\b\d+\.|\s*$)/s', $songLyric, $matches, PREG_SET_ORDER);
         foreach ($matches as $match) {
-            $verseNumber = (int) $match[1];
-            $verseContent = trim($match[2]);
-            $verses[$verseNumber] = $verseContent;
+            $verses[(int)$match[1]] = trim($match[2]);
         }
 
         // 2. Filtering berdasarkan operator
         if ($startVerse !== null) {
             $tempLyric = [];
-
+    
             if ($operator === '-') {
-                if ($endVerse === null) {
-                    foreach ($verses as $verseNum => $verseContent) {
-                        if ($verseNum >= $startVerse) {
-                            $tempLyric[] = "{$verseNum}. {$verseContent}";
-                        }
-                    }
-                } else {
-                    foreach ($verses as $verseNum => $verseContent) {
-                        if ($verseNum >= $startVerse && $verseNum <= $endVerse) {
-                            $tempLyric[] = "{$verseNum}. {$verseContent}";
-                        }
+                foreach ($verses as $verseNum => $verseContent) {
+                    if ($verseNum >= $startVerse && $verseNum <= $endVerse) {
+                        $tempLyric[] = "{$verseNum}. {$verseContent}";
                     }
                 }
             } elseif ($operator === '+') {
@@ -217,14 +217,20 @@ class HomeController extends Controller
                         $tempLyric[] = "{$verseNum}. {$verseContent}";
                     }
                 }
+            } elseif ($isInfiniteRange) {
+                foreach ($verses as $verseNum => $verseContent) {
+                    if ($verseNum >= $startVerse) {
+                        $tempLyric[] = "{$verseNum}. {$verseContent}";
+                    }
+                }
             } else {
                 if (isset($verses[$startVerse])) {
                     $tempLyric[] = "{$startVerse}. {$verses[$startVerse]}";
                 }
             }
-            
+    
             $filteredLyric = implode("\n\n", $tempLyric);
-
+    
             if (empty($filteredLyric)) {
                 return redirect()->back()->with('error', 'Ayat yang diminta tidak ditemukan dalam lagu ini.')->withInput();
             }
