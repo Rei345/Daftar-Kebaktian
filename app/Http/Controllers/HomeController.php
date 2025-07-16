@@ -238,6 +238,6 @@ class HomeController extends Controller
             $filteredLyric = $songLyric;
         }
 
-        return view ('content.detail-ende', compact('song', 'songTitle', 'filteredLyric', 'songNumber', 'startVerse', 'endVerse', 'operator'));
+        return view ('content.detail-ende', compact('song', 'songTitle', 'filteredLyric', 'songNumber', 'startVerse', 'endVerse', 'operator', 'isInfiniteRange'));
     }
 }
