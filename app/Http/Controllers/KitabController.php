@@ -54,18 +54,36 @@ class KitabController extends Controller
 
         $request->session()->put('last_bible_version', $versionCode);
 
+        $allBookAliases = config('bible_book_aliases.aliases', []);
+        $bookMapping = [];
+        foreach ($allBookAliases as $abbr => $aliases) {
+            foreach ($aliases as $alias) {
+                $bookMapping[strtolower($alias)] = $abbr;
+            }
+            $bookMapping[strtolower($abbr)] = $abbr;
+        }
+
         // --- Dapatkan daftar singkatan kitab dari API untuk parsing ---
-        $bookAbbreviations = [];
+        // $bookAbbreviations = [];
         $responseList = Http::get('https://beeble.vercel.app/api/v1/passage/list');
         if ($responseList->successful()) {
             $dataApi = $responseList->json()['data'];
             foreach ($dataApi as $bookItem) {
-                $bookAbbreviations[strtolower($bookItem['abbr'])] = $bookItem['abbr'];
-                $bookAbbreviations[strtolower($bookItem['name'])] = $bookItem['abbr'];
-                $bookAbbreviations[strtolower(str_replace(' ', '', $bookItem['name']))] = $bookItem['abbr'];
+                if (!isset($bookMapping[strtolower($bookItem['abbr'])])) {
+                    $bookMapping[strtolower($bookItem['abbr'])] = $bookItem['abbr'];
+                }
+                if (!isset($bookMapping[strtolower($bookItem['name'])])) {
+                    $bookMapping[strtolower($bookItem['name'])] = $bookItem['abbr'];
+                }
+                if (!isset($bookMapping[strtolower(str_replace(' ', '', $bookItem['name']))])) {
+                    $bookMapping[strtolower(str_replace(' ', '', $bookItem['name']))] = $bookItem['abbr'];
+                }
             }
         } else {
-            return redirect()->route('index.alkitab')->with('error', 'Gagal memuat daftar kitab untuk parsing input Anda.')->withInput();
+            if (empty($bookMapping)) {
+                return redirect()->route('index.alkitab')->with('error', 'Gagal memuat daftar kitab untuk parsing input Anda dan alias internal tidak tersedia.')->withInput();
+            }
+            session()->flash('error_book_list', 'Gagal memuat daftar kitab lengkap dari API. Parsing mungkin terbatas.');
         }
 
         // 2. Parsing string passage_input
@@ -80,7 +98,7 @@ class KitabController extends Controller
             $startVerse = isset($matches[3]) ? (int) $matches[3] : null;
             $endVerse = isset($matches[4]) ? (int) $matches[4] : null;
 
-            $bookAbbr = $bookAbbreviations[$bookNameOrAbbr] ?? null;
+            $bookAbbr = $bookMapping[$bookNameOrAbbr] ?? null;
 
         } else {
             return redirect()->route('index.alkitab')->withErrors(['passage_input' => 'Format pasal/ayat tidak valid. Contoh: "Kejadian 1:2-3" atau "Kej 1:2-3".'])->withInput();
@@ -143,7 +161,7 @@ class KitabController extends Controller
         return view('content.daftar-alkitab', [
             'versions' => $versions,
             'selectedVersion' => $selectedVersion,
-            'bookAbbreviations' => $bookAbbreviations,
+            'bookAbbreviations' => $bookMapping,
             'bookInfo' => $bookInfo,
             'verses' => $filteredVerses, // <-- Kirim $filteredVerses, tapi di view akan diakses sebagai $verses
             'versionName' => $versionName,
