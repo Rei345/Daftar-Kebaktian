@@ -64,7 +64,6 @@ class KitabController extends Controller
         }
 
         // --- Dapatkan daftar singkatan kitab dari API untuk parsing ---
-        // $bookAbbreviations = [];
         $responseList = Http::get('https://beeble.vercel.app/api/v1/passage/list');
         if ($responseList->successful()) {
             $dataApi = $responseList->json()['data'];
