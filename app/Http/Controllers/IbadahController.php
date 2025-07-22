@@ -3,16 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ibadah;
-use Illuminate\Http\Request;
-use App\Models\AlkitabVersion;
+use Illuminate\Http\Request; // Pastikan ini di-import
+use App\Models\AlkitabVersion; 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 
 class IbadahController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $ibadahs = Ibadah::orderBy('tanggal_ibadah', 'desc')->paginate(10);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json($ibadahs); 
+        }
+
         $versions = config('bible_versions.versions');
         $selectedVersion = session('last_bible_version', 'toba');
         $versionName = $versions[$selectedVersion] ?? $selectedVersion;
@@ -38,34 +44,15 @@ class IbadahController extends Controller
         $bookInfo = null;
         $verses = [];
 
-        $ibadahs = Ibadah::orderBy('tanggal_ibadah', 'desc')->paginate(10);
-
-        return view('content.list-ibadah', compact(
+        return response()->view('content.list-ibadah', compact(
             'versions', 'selectedVersion', 'books',
             'bookInfo', 'verses', 'versionName', 'passageInput', 'ibadahs'
         ));
     }
 
-    public function show(Ibadah $ibadah)
+    public function create()
     {
-        $versions = config('bible_versions.versions');
-        $selectedVersion = session('last_bible_version', 'toba');
-        $versionName = $versions[$selectedVersion] ?? $selectedVersion;
-
-        $books = [];
-        try {
-            $response = Http::timeout(5)->get('https://beeble.vercel.app/api/v1/passage/list');
-            if ($response->successful()) {
-                $dataApi = $response->json()['data'];
-                foreach ($dataApi as $bookItem) {
-                    $books[$bookItem['abbr']] = $bookItem['name'];
-                }
-            }
-        } catch (\Exception $e) {
-            Log::error('Exception saat memanggil Beeble API untuk detail ibadah: ' . $e->getMessage());
-        }
-
-        return view('content.home', compact('ibadah', 'versions', 'selectedVersion', 'versionName', 'books'));
+        abort(404);
     }
 
     public function store(Request $request)
@@ -84,10 +71,16 @@ class IbadahController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()
-                        ->withErrors($validator)
-                        ->withInput()
-                        ->with('error', 'Gagal menambahkan data ibadah. Silakan periksa input Anda.');
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'message' => 'Validasi gagal. Silakan periksa input Anda.',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            return response()->json([
+                'message' => 'Validasi gagal. Silakan periksa input Anda.',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
         try {
@@ -96,26 +89,62 @@ class IbadahController extends Controller
             })->values()->all(); 
 
             Ibadah::create([
-                'tanggal_ibadah' => $request->tanggal_ibadah,
-                'nama_minggu' => $request->nama_minggu,
-                'tema_khotbah' => $request->tema_khotbah,
-                'version_code' => $request->version_code,
-                'evangelium' => $request->evangelium,
-                'epistel' => $request->epistel,
-                's_patik' => $request->s_patik,
+                'tanggal_ibadah' => $request->input('tanggal_ibadah'),
+                'nama_minggu' => $request->input('nama_minggu'),
+                'tema_khotbah' => $request->input('tema_khotbah'),
+                'version_code' => $request->input('version_code'),
+                'evangelium' => $request->input('evangelium'),
+                'epistel' => $request->input('epistel'),
+                's_patik' => $request->input('s_patik'),
                 'daftar_ende' => empty($filteredDaftarEnde) ? [] : $filteredDaftarEnde,
             ]);
 
-            return redirect()->route('ibadah.index')->with('success', 'Data ibadah berhasil ditambahkan!');
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['message' => 'Data ibadah berhasil ditambahkan!'], 201);
+            }
+            return response()->json(['message' => 'Data ibadah berhasil ditambahkan!'], 201);
         } catch (\Exception $e) {
             Log::error('Gagal menyimpan data ibadah: ' . $e->getMessage());
-            return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan data ibadah. Silakan coba lagi.');
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['message' => 'Terjadi kesalahan saat menyimpan data ibadah. Silakan coba lagi.'], 500);
+            }
+            return response()->json(['message' => 'Terjadi kesalahan saat menyimpan data ibadah. Silakan coba lagi.'], 500);
         }
+    }
+
+    public function show(Request $request, Ibadah $ibadah)
+    {
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json($ibadah);
+        }
+
+        $versions = config('bible_versions.versions');
+        $selectedVersion = session('last_bible_version', 'toba');
+        $versionName = $versions[$selectedVersion] ?? $selectedVersion;
+
+        $books = [];
+        try {
+            $response = Http::timeout(5)->get('https://beeble.vercel.app/api/v1/passage/list');
+            if ($response->successful()) {
+                $dataApi = $response->json()['data'];
+                foreach ($dataApi as $bookItem) {
+                    $books[$bookItem['abbr']] = $bookItem['name'];
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Exception saat memanggil Beeble API untuk detail ibadah: ' . $e->getMessage());
+        }
+
+        return response()->view('content.home', compact('ibadah', 'versions', 'selectedVersion', 'versionName', 'books'));
+    }
+
+    public function edit(Ibadah $ibadah)
+    {
+        abort(404);
     }
 
     public function update(Request $request, Ibadah $ibadah)
     {
-        // Validasi data
         $validator = Validator::make($request->all(), [
             'tanggal_ibadah' => 'required|date',
             'nama_minggu' => 'required|string|max:255',
@@ -130,10 +159,16 @@ class IbadahController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()
-                        ->withErrors($validator)
-                        ->withInput()
-                        ->with('error', 'Gagal memperbarui data ibadah. Silakan periksa input Anda.');
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'message' => 'Validasi gagal. Silakan periksa input Anda.',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            return response()->json([
+                'message' => 'Validasi gagal. Silakan periksa input Anda.',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
         try {
@@ -142,31 +177,47 @@ class IbadahController extends Controller
             })->values()->all();
 
             $ibadah->update([
-                'tanggal_ibadah' => $request->tanggal_ibadah,
-                'nama_minggu' => $request->nama_minggu,
-                'tema_khotbah' => $request->tema_khotbah,
-                'version_code' => $request->version_code,
-                'evangelium' => $request->evangelium,
-                'epistel' => $request->epistel,
-                's_patik' => $request->s_patik,
+                'tanggal_ibadah' => $request->input('tanggal_ibadah'),
+                'nama_minggu' => $request->input('nama_minggu'),
+                'tema_khotbah' => $request->input('tema_khotbah'),
+                'version_code' => $request->input('version_code'),
+                'evangelium' => $request->input('evangelium'),
+                'epistel' => $request->input('epistel'),
+                's_patik' => $request->input('s_patik'),
                 'daftar_ende' => empty($filteredDaftarEnde) ? [] : $filteredDaftarEnde,
             ]);
 
-            return redirect()->route('ibadah.index')->with('success', 'Data ibadah berhasil diperbarui!');
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['message' => 'Data ibadah berhasil diperbarui!'], 200);
+            }
+            return response()->json(['message' => 'Data ibadah berhasil diperbarui!'], 200);
         } catch (\Exception $e) {
             Log::error('Gagal memperbarui data ibadah: ' . $e->getMessage());
-            return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan saat memperbarui data ibadah. Silakan coba lagi.');
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['message' => 'Terjadi kesalahan saat memperbarui data ibadah. Silakan coba lagi.'], 500);
+            }
+            return response()->json(['message' => 'Terjadi kesalahan saat memperbarui data ibadah. Silakan coba lagi.'], 500);
         }
     }
 
-    public function destroy(Ibadah $ibadah)
+    public function destroy(Request $request, Ibadah $ibadah) // Pastikan Request $request ada di sini
     {
         try {
             $ibadah->delete();
-            return redirect()->route('ibadah.index')->with('success', 'Data ibadah berhasil dihapus!');
+            // Jika ini request AJAX, kembalikan JSON sukses
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['message' => 'Data ibadah berhasil dihapus!'], 200);
+            }
+            // Jika bukan AJAX, redirect dengan pesan sukses
+            return response()->json(['message' => 'Data ibadah berhasil dihapus!'], 200);
         } catch (\Exception $e) {
             Log::error('Gagal menghapus data ibadah: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat menghapus data ibadah. Silakan coba lagi.');
+            // Jika ini request AJAX, kembalikan JSON error
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['message' => 'Terjadi kesalahan saat menghapus data ibadah. Silakan coba lagi.'], 500);
+            }
+            // Jika bukan AJAX, redirect dengan pesan error
+            return response()->json(['message' => 'Terjadi kesalahan saat menghapus data ibadah. Silakan coba lagi.'], 500);
         }
     }
 }

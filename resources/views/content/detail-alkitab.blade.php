@@ -55,7 +55,7 @@
             text-align: center;
             padding: 2rem 5%;
             scroll-snap-align: start;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Garis pemisah antar ayat/kelompok */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         .verse-content {
             font-size: 3.5rem; /* Perbesar untuk proyektor */
@@ -81,7 +81,7 @@
         .golden-verse {
             font-weight: bold;
             color: var(--info-color); /* Warna berbeda untuk ayat emas */
-            text-decoration: underline;
+            text-decoration: none;
         }
         .scroll-down-arrow {
             position: absolute;
