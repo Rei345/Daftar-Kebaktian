@@ -478,6 +478,22 @@
             box-shadow: var(--shadow-medium);
         }
 
+        .btn-danger-delete {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.8rem 2rem;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .btn-danger-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
         /* Ende Items */
         .ende-item {
             display: flex;
@@ -970,7 +986,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Hapus</button>
+                    <button type="button" class="btn btn-danger-delete" id="confirmDeleteBtn">Hapus</button>
                 </div>
             </div>
         </div>
@@ -978,9 +994,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    {{-- SweetAlert2 hanya jika Anda masih ingin menggunakannya untuk notifikasi lain,
-         tetapi logika delete-nya sudah dipindahkan ke modal Bootstrap + AJAX --}}
-    {{-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> --}}
+
 
     <script>
         // Floating Particles Background Script
