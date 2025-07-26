@@ -13,11 +13,19 @@ class IbadahController extends Controller
 {
     public function index(Request $request)
     {
+        Log::info("Route /ibadah diakses");
+
         $ibadahs = Ibadah::orderBy('tanggal_ibadah', 'desc')->paginate(10);
 
         if ($request->ajax() || $request->wantsJson()) {
+            Log::info("Return JSON dari /ibadah", ['count' => $ibadahs->count()]);
             return response()->json($ibadahs); 
         }
+        // $ibadahs = Ibadah::orderBy('tanggal_ibadah', 'desc')->paginate(10);
+
+        // if ($request->ajax() || $request->wantsJson()) {
+        //     return response()->json($ibadahs); 
+        // }
 
         $versions = config('bible_versions.versions');
         $selectedVersion = session('last_bible_version', 'toba');
