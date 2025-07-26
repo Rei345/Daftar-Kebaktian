@@ -1108,15 +1108,21 @@
             }
 
             // Function to render table rows
-            function renderTable(pageUrl = '{{ route("ibadah.index") }}') {
+            function renderTable(pageUrl = null) {
                 ibadahTableBody.empty(); // Clear existing rows
                 loadingState.show(); // Show loading indicator
                 noDataState.hide(); // Hide no data state
                 $('#paginationControls').empty().parent().hide(); // Hide pagination initially
 
+                const requestUrl = pageUrl || '{{ route("ibadah.index") }}'
+
                 $.ajax({
-                    url: pageUrl, // Gunakan pageUrl untuk pagination
+                    url: requestUrl,
                     method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
                     success: function(response) {
                         const ibadahs = response.data || [];
                         const paginationLinks = response.links;
@@ -1151,7 +1157,6 @@
                                                         title="Edit">
                                                     <i class="fas fa-edit"></i> Edit
                                                 </button>
-                                                {{-- Tombol Hapus: Membuka modal konfirmasi Bootstrap --}}
                                                 <button type="button" class="btn btn-danger btn-sm delete-ibadah-btn"
                                                         data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal"
                                                         data-id="${ibadah.id}" title="Hapus">
@@ -1287,7 +1292,7 @@
 
                 const id = $('#ibadahId').val();
                 const method = $('#formMethod').val(); // Will be 'POST' or 'PUT'
-                const url = id ? `/ibadah/${id}` : '{{ route("ibadah.store") }}';
+                const url = id ? `{{ url('/ibadah') }}/${id}` : '{{ route("ibadah.store") }}';
                 
                 const formData = new FormData(); // Buat FormData baru
                 
@@ -1304,7 +1309,6 @@
                 }
 
                 // Kumpulkan daftar_ende dan tambahkan ke FormData sebagai array
-                // HAPUS JSON.stringify() DI SINI!
                 $('#endeInputsContainer').find('.ende-item').each(function(index) {
                     const nomorInput = $(this).find('.ende-nomor');
                     const catatanInput = $(this).find('.ende-catatan');
@@ -1318,20 +1322,22 @@
                     }
                 });
 
-                // Tambahkan token CSRF secara manual ke FormData
                 formData.append('_token', '{{ csrf_token() }}');
 
 
                 $.ajax({
                     url: url,
-                    method: 'POST', // Always POST for Laravel with _method override
+                    method: 'POST',
                     data: formData,
-                    processData: false, // Important when sending FormData
-                    contentType: false, // Important when sending FormData
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
                     success: function(response) {
                         showAlert('success', response.message);
                         editIbadahModal.hide();
-                        renderTable(); // Re-render table after success
+                        renderTable();
                     },
                     error: function(xhr, status, error) {
                         let errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
@@ -1351,24 +1357,25 @@
             // Handle "Delete" button click (opens confirmation modal)
             $(document).on('click', '.delete-ibadah-btn', function() {
                 currentIbadahId = $(this).data('id');
-                // The modal is already triggered by data-bs-toggle/target on the button itself.
-                // We just need to ensure currentIbadahId is set.
             });
 
             // Handle confirmation of deletion
             $('#confirmDeleteBtn').on('click', function() {
                 if (currentIbadahId) {
                     $.ajax({
-                        url: `/ibadah/${currentIbadahId}`,
-                        method: 'POST', // Use POST for method spoofing
+                        url: `{{ url('/ibadah') }}/${currentIbadahId}`,
+                        method: 'POST',
                         data: {
-                            _token: '{{ csrf_token() }}', // Send CSRF token
-                            _method: 'DELETE' // Method spoofing for DELETE
+                            _token: '{{ csrf_token() }}',
+                            _method: 'DELETE'
+                        },
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
                         },
                         success: function(response) {
                             showAlert('success', response.message);
                             deleteConfirmationModal.hide();
-                            renderTable(); // Re-render table
+                            renderTable();
                         },
                         error: function(xhr, status, error) {
                             let errorMessage = 'Gagal menghapus data. Silakan coba lagi.';
@@ -1385,23 +1392,22 @@
             });
 
             // Handle the "Tambahkan yang pertama!" link if no data
-            const addNewIbadahLink = document.getElementById('addNewIbadahLink'); // Corrected ID
+            const addNewIbadahLink = document.getElementById('addNewIbadahLink'); 
             if (addNewIbadahLink) {
                 addNewIbadahLink.addEventListener('click', function(e) {
                     e.preventDefault();
-                    // Simulate click on the create button to open modal
                     document.getElementById('createIbadahBtn').click();
                 });
             }
 
             // If there are validation errors from a failed submission (non-AJAX fallback), re-open the modal
             @if ($errors->any() || session('error'))
-                $(window).on('load', function() { // Use window.on('load') to ensure Bootstrap JS is ready
+                $(window).on('load', function() { 
                     const editIbadahModalElement = document.getElementById('editIbadahModal');
                     const modalInstance = new bootstrap.Modal(editIbadahModalElement);
                     modalInstance.show();
 
-                    const oldIbadahId = "{{ old('ibadah_id') }}"; // Get the ID that might have failed validation
+                    const oldIbadahId = "{{ old('ibadah_id') }}";
                     if (oldIbadahId) {
                         $('#editIbadahModalLabel').html('<i class="fas fa-edit me-2"></i> Edit Data Ibadah');
                         $('#ibadahId').val(oldIbadahId);
@@ -1415,38 +1421,34 @@
                     // Populate ende inputs from old data if validation failed
                     const oldDaftarEnde = @json(old('daftar_ende'));
                     if (oldDaftarEnde) {
-                        $('#endeInputsContainer').empty(); // Corrected ID
+                        $('#endeInputsContainer').empty();
                         oldDaftarEnde.forEach(item => {
                             addEndeInputField(item.nomor || '', item.catatan || '');
                         });
                     } else {
-                        addEndeInputField(); // Ensure at least one empty row
+                        addEndeInputField(); 
                     }
 
                     // Add is-invalid class to fields that had validation errors
                     @foreach ($errors->keys() as $key)
                         @php
-                            // Handle array fields like daftar_ende.*.nomor
-                            // Convert 'daftar_ende.0.nomor' to 'daftar_ende[0][nomor]' for selector
                             $fieldName = preg_replace('/^daftar_ende\.(\d+)\.(nomor|catatan)$/', 'daftar_ende[$1][$2]', $key);
                         @endphp
                         const errorInput = document.querySelector('[name="{{ $fieldName }}"]');
                         if (errorInput) {
                             errorInput.classList.add('is-invalid');
-                            // Optionally add a feedback div if not already present
                             if (!errorInput.nextElementSibling || !errorInput.nextElementSibling.classList.contains('invalid-feedback')) {
                                 $(errorInput).after(`<div class="invalid-feedback d-block">{{ $errors->first($key) }}</div>`);
                             }
                         }
                     @endforeach
-                    // Display general error message if present
+
                     @if (session('error'))
                         showAlert('danger', "{{ session('error') }}");
                     @endif
                 });
             @endif
 
-            // Ensure the initial state of remove buttons is correct when page loads
             updateRemoveButtons();
         });
     </script>

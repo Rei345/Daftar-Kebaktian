@@ -21,11 +21,6 @@ class IbadahController extends Controller
             Log::info("Return JSON dari /ibadah", ['count' => $ibadahs->count()]);
             return response()->json($ibadahs); 
         }
-        // $ibadahs = Ibadah::orderBy('tanggal_ibadah', 'desc')->paginate(10);
-
-        // if ($request->ajax() || $request->wantsJson()) {
-        //     return response()->json($ibadahs); 
-        // }
 
         $versions = config('bible_versions.versions');
         $selectedVersion = session('last_bible_version', 'toba');
@@ -52,7 +47,7 @@ class IbadahController extends Controller
         $bookInfo = null;
         $verses = [];
 
-        return response()->view('content.list-ibadah', compact(
+        return view('content.list-ibadah', compact(
             'versions', 'selectedVersion', 'books',
             'bookInfo', 'verses', 'versionName', 'passageInput', 'ibadahs'
         ));
@@ -79,12 +74,6 @@ class IbadahController extends Controller
         ]);
 
         if ($validator->fails()) {
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'message' => 'Validasi gagal. Silakan periksa input Anda.',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
             return response()->json([
                 'message' => 'Validasi gagal. Silakan periksa input Anda.',
                 'errors' => $validator->errors()
@@ -107,15 +96,9 @@ class IbadahController extends Controller
                 'daftar_ende' => empty($filteredDaftarEnde) ? [] : $filteredDaftarEnde,
             ]);
 
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json(['message' => 'Data ibadah berhasil ditambahkan!'], 201);
-            }
             return response()->json(['message' => 'Data ibadah berhasil ditambahkan!'], 201);
         } catch (\Exception $e) {
             Log::error('Gagal menyimpan data ibadah: ' . $e->getMessage());
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json(['message' => 'Terjadi kesalahan saat menyimpan data ibadah. Silakan coba lagi.'], 500);
-            }
             return response()->json(['message' => 'Terjadi kesalahan saat menyimpan data ibadah. Silakan coba lagi.'], 500);
         }
     }
@@ -143,7 +126,7 @@ class IbadahController extends Controller
             Log::error('Exception saat memanggil Beeble API untuk detail ibadah: ' . $e->getMessage());
         }
 
-        return response()->view('content.home', compact('ibadah', 'versions', 'selectedVersion', 'versionName', 'books'));
+        return view('content.home', compact('ibadah', 'versions', 'selectedVersion', 'versionName', 'books'));
     }
 
     public function edit(Ibadah $ibadah)
@@ -167,12 +150,6 @@ class IbadahController extends Controller
         ]);
 
         if ($validator->fails()) {
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'message' => 'Validasi gagal. Silakan periksa input Anda.',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
             return response()->json([
                 'message' => 'Validasi gagal. Silakan periksa input Anda.',
                 'errors' => $validator->errors()
@@ -195,36 +172,20 @@ class IbadahController extends Controller
                 'daftar_ende' => empty($filteredDaftarEnde) ? [] : $filteredDaftarEnde,
             ]);
 
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json(['message' => 'Data ibadah berhasil diperbarui!'], 200);
-            }
             return response()->json(['message' => 'Data ibadah berhasil diperbarui!'], 200);
         } catch (\Exception $e) {
             Log::error('Gagal memperbarui data ibadah: ' . $e->getMessage());
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json(['message' => 'Terjadi kesalahan saat memperbarui data ibadah. Silakan coba lagi.'], 500);
-            }
             return response()->json(['message' => 'Terjadi kesalahan saat memperbarui data ibadah. Silakan coba lagi.'], 500);
         }
     }
 
-    public function destroy(Request $request, Ibadah $ibadah) // Pastikan Request $request ada di sini
+    public function destroy(Request $request, Ibadah $ibadah)
     {
         try {
             $ibadah->delete();
-            // Jika ini request AJAX, kembalikan JSON sukses
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json(['message' => 'Data ibadah berhasil dihapus!'], 200);
-            }
-            // Jika bukan AJAX, redirect dengan pesan sukses
             return response()->json(['message' => 'Data ibadah berhasil dihapus!'], 200);
         } catch (\Exception $e) {
             Log::error('Gagal menghapus data ibadah: ' . $e->getMessage());
-            // Jika ini request AJAX, kembalikan JSON error
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json(['message' => 'Terjadi kesalahan saat menghapus data ibadah. Silakan coba lagi.'], 500);
-            }
-            // Jika bukan AJAX, redirect dengan pesan error
             return response()->json(['message' => 'Terjadi kesalahan saat menghapus data ibadah. Silakan coba lagi.'], 500);
         }
     }
