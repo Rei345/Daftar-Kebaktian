@@ -1122,7 +1122,7 @@
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    }
+                    },
                     success: function(response) {
                         const ibadahs = response.data || [];
                         const paginationLinks = response.links;
