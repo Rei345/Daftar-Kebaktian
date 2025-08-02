@@ -995,9 +995,6 @@
                     $('html, body').animate({ scrollTop: $('.main-content').offset().top }, 'slow'); // Scroll to top of content
                 }
             });
-
-            // Store the pagination info after successful fetch
-            // (This is done inside fetchEndeSongs success callback)
         });
     </script>
 </body>
