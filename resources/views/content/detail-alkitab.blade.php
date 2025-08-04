@@ -24,16 +24,6 @@
             overflow-x: hidden;
             /* scroll-behavior: smooth; Hapus ini dari body */
         }
-        .navbar {
-            background-color: rgba(33, 37, 41, 0.8) !important;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            transition: all 0.3s ease;
-        }
-        .navbar.scrolled {
-            background-color: var(--dark-color) !important;
-        }
 
         .hero-section {
             height: 100vh;
@@ -156,30 +146,6 @@
     </style>
 </head>
 <body>
-
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-    <div class="container">
-        <a class="navbar-brand fw-bold animate__animated animate__fadeInLeft" href="{{ route('home') }}">
-            <i class="fas fa-church me-2"></i> ParHKI
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 animate__animated animate__fadeInRight">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('index.alkitab') }}">Alkitab</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('index.ende') }}">Buku Ende</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('ibadah.index') }}">Manajemen Ibadah</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
 
 @if (!empty($verses))
 <div class="scrolling-container">
