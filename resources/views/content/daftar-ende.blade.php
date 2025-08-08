@@ -55,7 +55,7 @@
             position: absolute;
             color: var(--primary-gold);
             opacity: 0.1;
-            font-size: 2rem;
+            font-size: clamp(1.5rem, 2vw, 2rem);
             animation: float-music 25s infinite linear;
         }
 
@@ -82,14 +82,14 @@
             backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(212, 175, 55, 0.1);
             box-shadow: var(--shadow-soft);
-            padding: 1rem 0;
+            padding: 0.5rem 0;
             transition: all 0.3s ease;
         }
 
         .navbar-brand {
             font-family: 'Playfair Display', serif;
             font-weight: 700;
-            font-size: 1.8rem;
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
             color: var(--primary-blue) !important;
             text-decoration: none;
             transition: all 0.3s ease;
@@ -103,7 +103,16 @@
         .navbar-brand i {
             color: var(--primary-gold);
             margin-right: 0.5rem;
-            font-size: 1.6rem;
+            font-size: clamp(1rem, 3vw, 1.6rem);
+        }
+
+        .navbar-toggler {
+            border: none;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: none;
         }
 
         .nav-link {
@@ -111,13 +120,15 @@
             font-weight: 500;
             position: relative;
             transition: all 0.3s ease;
-            margin: 0 0.5rem;
+            margin: 0 0.25rem;
+            padding: 0.5rem 0.75rem !important;
+            font-size: clamp(0.9rem, 2vw, 1rem);
         }
 
         .nav-link::after {
             content: '';
             position: absolute;
-            bottom: -5px;
+            bottom: 0;
             left: 50%;
             width: 0;
             height: 2px;
@@ -140,9 +151,10 @@
         .hero-section {
             background: linear-gradient(135deg, var(--primary-blue) 0%, var(--deep-blue) 100%);
             color: white;
-            padding: 4rem 0;
+            padding: clamp(3rem, 8vw, 6rem) 0 clamp(2rem, 6vw, 4rem);
             position: relative;
             overflow: hidden;
+            margin-top: 60px;
         }
 
         .hero-section::before {
@@ -163,21 +175,23 @@
 
         .hero-title {
             font-family: 'Playfair Display', serif;
-            font-size: 3.5rem;
+            font-size: clamp(2rem, 6vw, 3.5rem);
             font-weight: 700;
             margin-bottom: 1rem;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            line-height: 1.2;
         }
 
         .hero-subtitle {
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 3vw, 1.2rem);
             opacity: 0.9;
             margin-bottom: 2rem;
+            line-height: 1.4;
         }
 
         /* Main Content */
         .main-content {
-            padding: 3rem 0;
+            padding: clamp(2rem, 5vw, 3rem) 0;
             background: var(--warm-white);
         }
 
@@ -186,8 +200,8 @@
             border-radius: 20px;
             box-shadow: var(--shadow-medium);
             border: none;
-            padding: 2.5rem;
-            margin-top: -4rem;
+            padding: clamp(1.5rem, 4vw, 2.5rem);
+            margin-top: clamp(-2rem, -4vw, -4rem);
             position: relative;
             z-index: 10;
             transition: all 0.3s ease;
@@ -200,11 +214,12 @@
 
         .page-title {
             font-family: 'Playfair Display', serif;
-            font-size: 2.2rem;
+            font-size: clamp(1.5rem, 4vw, 2.2rem);
             color: var(--primary-blue);
             margin-bottom: 2rem;
             text-align: center;
             position: relative;
+            line-height: 1.2;
         }
 
         .page-title::after {
@@ -227,6 +242,7 @@
             margin-bottom: 2rem;
             box-shadow: var(--shadow-soft);
             transition: all 0.3s ease;
+            width: 100%;
         }
 
         .search-container:hover {
@@ -241,17 +257,19 @@
             align-items: center;
             padding: 0.5rem;
             transition: all 0.3s ease;
+            width: 100%;
         }
 
         .search-input {
             border: none;
             outline: none;
             flex: 1;
-            padding: 1rem 1.5rem;
-            font-size: 1.1rem;
+            padding: clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem);
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
             background: transparent;
             color: var(--text-dark);
             font-weight: 500;
+            min-width: 0;
         }
 
         .search-input::placeholder {
@@ -263,8 +281,8 @@
             background: linear-gradient(135deg, var(--primary-gold) 0%, #b8941f 100%);
             border: none;
             color: white;
-            width: 50px;
-            height: 50px;
+            width: clamp(40px, 8vw, 50px);
+            height: clamp(40px, 8vw, 50px);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -272,6 +290,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: var(--shadow-soft);
+            flex-shrink: 0;
         }
 
         .search-btn:hover {
@@ -283,14 +302,19 @@
             transform: scale(0.95);
         }
 
+        .search-btn i {
+            font-size: clamp(0.8rem, 2vw, 1rem);
+        }
+
         /* Alert Messages */
         .alert {
             border-radius: 15px;
             border: none;
-            padding: 1.5rem;
+            padding: clamp(1rem, 3vw, 1.5rem);
             margin-bottom: 2rem;
             box-shadow: var(--shadow-soft);
             font-weight: 500;
+            font-size: clamp(0.85rem, 2vw, 1rem);
         }
 
         .alert-info {
@@ -313,6 +337,7 @@
             background: white;
             border-radius: 20px;
             overflow: hidden;
+            overflow-x: auto;
             box-shadow: var(--shadow-soft);
             margin-bottom: 2rem;
         }
@@ -321,16 +346,19 @@
             margin: 0;
             border-collapse: separate;
             border-spacing: 0;
+            min-width: 600px;
+            width: 100%;
         }
 
         .table thead th {
             background: linear-gradient(135deg, var(--primary-blue) 0%, var(--deep-blue) 100%);
             color: white;
             border: none;
-            padding: 1.5rem;
+            padding: clamp(1rem, 2.5vw, 1.5rem);
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
             text-align: center;
+            white-space: nowrap;
         }
 
         .table tbody tr {
@@ -345,22 +373,23 @@
         }
 
         .table tbody td {
-            padding: 1.5rem;
+            padding: clamp(0.75rem, 2vw, 1.5rem);
             border: none;
             text-align: center;
             font-weight: 500;
             vertical-align: middle;
+            font-size: clamp(0.85rem, 2vw, 1rem);
         }
 
         .table tbody td:first-child {
             font-weight: 700;
             color: var(--primary-blue);
-            font-size: 1.1rem;
+            font-size: clamp(0.9rem, 2.2vw, 1.1rem);
         }
 
         .table tbody td:nth-child(2) {
             text-align: left;
-            font-size: 1.05rem;
+            font-size: clamp(0.85rem, 2vw, 1.05rem);
             color: var(--text-dark);
         }
 
@@ -369,7 +398,7 @@
             background: linear-gradient(135deg, var(--accent-green) 0%, #047857 100%);
             color: white;
             border: none;
-            padding: 0.5rem 1.5rem;
+            padding: clamp(0.4rem, 1.5vw, 0.5rem) clamp(0.8rem, 2.5vw, 1.5rem);
             border-radius: 25px;
             font-weight: 600;
             text-decoration: none;
@@ -377,7 +406,9 @@
             box-shadow: var(--shadow-soft);
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: clamp(0.25rem, 1vw, 0.5rem);
+            font-size: clamp(0.75rem, 1.8vw, 0.9rem);
+            white-space: nowrap;
         }
 
         .btn-detail:hover {
@@ -393,12 +424,12 @@
         /* Loading Animation */
         .loading-row {
             text-align: center;
-            padding: 3rem;
+            padding: clamp(2rem, 5vw, 3rem);
         }
 
         .loading-spinner {
-            width: 40px;
-            height: 40px;
+            width: clamp(30px, 6vw, 40px);
+            height: clamp(30px, 6vw, 40px);
             border: 3px solid rgba(212, 175, 55, 0.3);
             border-top: 3px solid var(--primary-gold);
             border-radius: 50%;
@@ -415,21 +446,26 @@
         .pagination {
             justify-content: center;
             margin-top: 2rem;
+            flex-wrap: wrap;
+            gap: 0.25rem;
         }
 
         .pagination .page-item {
-            margin: 0 0.2rem;
+            margin: 0;
         }
 
         .pagination .page-link {
             border: none;
             background: white;
             color: var(--text-dark);
-            padding: 0.75rem 1rem;
+            padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.75rem, 2vw, 1rem);
             border-radius: 12px;
             font-weight: 500;
             transition: all 0.3s ease;
             box-shadow: var(--shadow-soft);
+            font-size: clamp(0.8rem, 2vw, 1rem);
+            min-width: clamp(35px, 7vw, 40px);
+            text-align: center;
         }
 
         .pagination .page-link:hover {
@@ -453,15 +489,15 @@
         /* Stats Cards */
         .stats-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: clamp(1rem, 3vw, 1.5rem);
             margin-bottom: 2rem;
         }
 
         .stats-card {
             background: white;
             border-radius: 15px;
-            padding: 1.5rem;
+            padding: clamp(1rem, 3vw, 1.5rem);
             text-align: center;
             box-shadow: var(--shadow-soft);
             transition: all 0.3s ease;
@@ -475,13 +511,13 @@
         }
 
         .stats-icon {
-            font-size: 2.5rem;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
             margin-bottom: 1rem;
             color: var(--primary-gold);
         }
 
         .stats-number {
-            font-size: 2rem;
+            font-size: clamp(1.5rem, 4vw, 2rem);
             font-weight: 700;
             color: var(--primary-blue);
             margin-bottom: 0.5rem;
@@ -492,68 +528,62 @@
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            font-size: 0.9rem;
+            font-size: clamp(0.75rem, 2vw, 0.9rem);
         }
 
         /* Responsive Design */
-        @media (max-width: 992px) {
-            .hero-title {
-                font-size: 2.8rem;
-            }
-            
-            .page-title {
-                font-size: 1.8rem;
-            }
-            
-            .content-card {
-                padding: 2rem;
-            }
-        }
-
         @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2.2rem;
+            .hero-section {
+                margin-top: 70px;
+                padding: 2rem 0 1.5rem;
             }
             
-            .hero-subtitle {
-                font-size: 1rem;
-            }
-            
-            .page-title {
-                font-size: 1.5rem;
-            }
-            
-            .content-card {
-                padding: 1.5rem;
-                margin-top: -2rem;
-            }
-            
-            .search-input {
-                font-size: 1rem;
-                padding: 0.8rem 1rem;
+            .table {
+                min-width: 500px;
             }
             
             .table thead th,
             .table tbody td {
+                padding: 0.75rem 0.5rem;
+            }
+            
+            .table tbody td:nth-child(2) {
+                max-width: 200px;
+                word-wrap: break-word;
+            }
+            
+            .navbar-collapse {
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(20px);
+                border-radius: 15px;
+                margin-top: 1rem;
                 padding: 1rem;
+                box-shadow: var(--shadow-soft);
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
             }
         }
 
         @media (max-width: 576px) {
-            .hero-title {
-                font-size: 1.8rem;
+            .table {
+                min-width: 400px;
             }
             
             .page-title {
                 font-size: 1.3rem;
             }
             
-            .navbar-brand {
-                font-size: 1.5rem;
+            .pagination .page-link {
+                padding: 0.4rem 0.6rem;
+                font-size: 0.8rem;
+                min-width: 32px;
             }
             
-            .stats-container {
-                grid-template-columns: 1fr;
+            .btn-detail {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.7rem;
             }
         }
 
@@ -565,6 +595,7 @@
         /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
+            height: 8px;
         }
 
         ::-webkit-scrollbar-track {
@@ -579,6 +610,20 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #b8941f;
         }
+
+        /* Ensure proper mobile layout */
+        .container-fluid {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+
+        /* Fix table horizontal scroll on mobile */
+        @media (max-width: 576px) {
+            .table-container {
+                margin: 0 -0.5rem 2rem -0.5rem;
+                border-radius: 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -592,7 +637,7 @@
                 <i class="fas fa-dove"></i> ParHKI
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+                <i class="fas fa-bars" style="color: var(--primary-blue);"></i>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
@@ -620,7 +665,7 @@
     <section class="hero-section">
         <div class="container">
             <div class="row justify-content-center">
-                <div class="col-lg-8 mt-4 text-center hero-content">
+                <div class="col-lg-8 text-center hero-content">
                     <h1 class="hero-title animate__animated animate__fadeInUp">
                         Buku Ende Digital
                     </h1>
@@ -628,7 +673,7 @@
                         Kumpulan nyanyian rohani untuk memperkuat iman dan memuji Tuhan
                     </p>
                     <div class="animate__animated animate__fadeInUp animate__delay-2s">
-                        <i class="fas fa-music" style="font-size: 3rem; opacity: 0.7;"></i>
+                        <i class="fas fa-music" style="font-size: clamp(2rem, 5vw, 3rem); opacity: 0.7;"></i>
                     </div>
                 </div>
             </div>
@@ -639,10 +684,10 @@
     <section class="main-content">
         <div class="container">
             <div class="row justify-content-center">
-                <div class="col-lg-12">
+                <div class="col-12">
                     <div class="card content-card animate__animated animate__fadeInUp animate__delay-1s">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h2 class="page-title mb-0">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+                            <h2 class="page-title mb-3 mb-md-0">
                                 <i class="fas fa-list-music me-2" style="color: var(--primary-gold);"></i>
                                 Daftar Lagu Ende
                             </h2>
@@ -677,7 +722,7 @@
                         <form id="endeSearchForm" class="animate__animated animate__fadeInUp animate__delay-2s">
                             <div class="search-container">
                                 <div class="search-wrapper">
-                                    <input type="text" id="searchInput" name="query" value="{{ request('query') }}" 
+                                    <input type="text" id="searchInput" name="query" value="" 
                                             class="search-input" placeholder="Cari nomor atau judul lagu..." />
                                     <button type="submit" class="search-btn">
                                         <i class="fas fa-search"></i>
@@ -697,15 +742,15 @@
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
-                                        <th scope="col">
+                                        <th scope="col" style="width: 15%;">
                                             <i class="fas fa-hashtag me-2"></i>
                                             Nomor
                                         </th>
-                                        <th scope="col">
+                                        <th scope="col" style="width: 55%;">
                                             <i class="fas fa-music me-2"></i>
                                             Judul Lagu
                                         </th>
-                                        <th scope="col">
+                                        <th scope="col" style="width: 30%;">
                                             <i class="fas fa-cog me-2"></i>
                                             Aksi
                                         </th>
@@ -904,7 +949,7 @@
                 ajaxPagination.empty().hide(); // Hide pagination while loading
 
                 $.ajax({
-                    url: '{{ route('ende.search') }}', // Assuming this route exists and returns JSON
+                    url: '{{ route('ende.search') }}',
                     method: 'GET',
                     data: { page: page, query: query },
                     success: function(response) {
@@ -916,7 +961,7 @@
                                         <td>${song.song_number}</td>
                                         <td>${song.song_title}</td>
                                         <td>
-                                            <a href="{{ url('/ende') }}/${song.nomor}" class="btn-detail">
+                                            <a href="{{ route('ende-home.search') }}?nomor=${song.song_number}" class="btn-detail">
                                                 <i class="fas fa-eye me-1"></i> Lihat
                                             </a>
                                         </td>

@@ -213,8 +213,8 @@ class HomeController extends Controller
         $verses = [];
 
         // 1. Memecah string lirik menjadi array per ayat
-        preg_match_all('/\b(\d+)\.\s(.*?)(?=\s\b\d+\.|\s*$)/s', $songLyric, $matches, PREG_SET_ORDER);
-        foreach ($matches as $match) {
+        preg_match_all('/\b(\d+)\.\s(.*?)(?=\s\b\d+\.|\s*$)/s', $songLyric, $verseMatches, PREG_SET_ORDER);
+        foreach ($verseMatches as $match) {
             $verses[(int)$match[1]] = trim($match[2]);
         }
 
@@ -252,7 +252,16 @@ class HomeController extends Controller
                 return redirect()->back()->with('error', 'Ayat yang diminta tidak ditemukan dalam lagu ini.')->withInput();
             }
         } else {
-            $filteredLyric = $songLyric;
+            $tempLyric = [];
+            ksort($verses);
+            foreach ($verses as $verseNum => $verseContent) {
+                $tempLyric[] = "{$verseNum}. {$verseContent}";
+            }
+            $filteredLyric = implode("\n\n", $tempLyric);
+
+            if (empty($filteredLyric)) {
+                $filteredLyric = $songLyric;
+            }
         }
 
         return view ('content.detail-ende', compact('song', 'songTitle', 'filteredLyric', 'songNumber', 'startVerse', 'endVerse', 'operator', 'isInfiniteRange'));
