@@ -29,14 +29,9 @@ Route::get('/alkitab', [KitabController::class, 'index'])->name('index.alkitab')
 Route::get('/alkitab/search-process', [KitabController::class, 'processSearch'])->name('alkitab.search');
 
 // Manajemen Ibadah Routes
-// Gunakan Route::resource untuk Ibadah.
-// Kita akan membiarkan 'index', 'store', 'update', 'destroy' dikelola resource.
-// 'show' akan di-override untuk penanganan AJAX/non-AJAX.
-// 'create' dan 'edit' tidak diperlukan sebagai halaman terpisah karena menggunakan modal.
 Route::resource('ibadah', IbadahController::class)->except(['create', 'edit']);
 
 // Override route 'show' untuk Ibadah agar bisa menangani request AJAX dan non-AJAX
-// Penting: Pastikan ini didefinisikan SETELAH Route::resource jika Anda ingin model binding otomatis
 Route::get('/ibadah/{ibadah}', [IbadahController::class, 'show'])->name('ibadah.show');
 
 // Home Search Routes (jika ini terkait dengan pencarian di halaman utama)
