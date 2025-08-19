@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,6 +25,11 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ route('home') }}">
+                            <i class="fas fa-home me-1"></i> Beranda
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="{{ route('index.alkitab') }}">
                             <i class="fas fa-book-open me-1"></i> Alkitab
                         </a>
@@ -38,6 +43,20 @@
                         <a class="nav-link" href="{{ route('ibadah.index') }}">
                             <i class="fas fa-calendar-alt me-1"></i> Manajemen Ibadah
                         </a>
+                    </li>
+                    <li class="nav-item">
+                        @if (auth()->check())
+                            <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                                @csrf
+                                <button type="submit" class="nav-link btn btn-link">
+                                    <i class="fas fa-sign-out me-1"></i> Logout
+                                </button>
+                            </form>
+                        @else
+                            <a class="nav-link" href="{{ route('index.login') }}">
+                                <i class="fas fa-sign-in me-1"></i> Login
+                            </a>
+                        @endif
                     </li>
                 </ul>
             </div>

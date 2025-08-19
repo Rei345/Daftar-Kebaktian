@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,6 +24,11 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ route('home') }}">
+                            <i class="fas fa-home me-1"></i> Beranda
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{ route('index.alkitab') }}">
                             <i class="fas fa-book-open me-1"></i> Alkitab
                         </a>
@@ -37,6 +42,20 @@
                         <a class="nav-link active" aria-current="page" href="{{ route('ibadah.index') }}">
                             <i class="fas fa-calendar-alt me-1"></i> Manajemen Ibadah
                         </a>
+                    </li>
+                    <li class="nav-item">
+                        @if (auth()->check())
+                            <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                                @csrf
+                                <button type="submit" class="nav-link btn btn-link">
+                                    <i class="fas fa-sign-out me-1"></i> Logout
+                                </button>
+                            </form>
+                        @else
+                            <a class="nav-link" href="{{ route('index.login') }}">
+                                <i class="fas fa-sign-in me-1"></i> Login
+                            </a>
+                        @endif
                     </li>
                 </ul>
             </div>
@@ -71,10 +90,12 @@
                                 <i class="fas fa-list-alt me-2" style="color: var(--primary-gold);"></i>
                                 Daftar Data Ibadah
                             </div>
-                            <button class="Btn" id="createIbadahBtn" data-bs-toggle="modal" data-bs-target="#editIbadahModal">
-                                <div class="sign">+</div>
-                                <div class="text">Tambah</div>
-                            </button>
+                            @if (auth()->check())
+                                <button class="Btn" id="createIbadahBtn" data-bs-toggle="modal" data-bs-target="#editIbadahModal">
+                                    <div class="sign">+</div>
+                                    <div class="text">Tambah</div>
+                                </button>
+                            @endif
                         </div>
 
                         <div id="alertContainer">
@@ -398,12 +419,13 @@
                     success: function(response) {
                         const ibadahs = response.data || [];
                         const paginationLinks = response.links;
+                        const isAuthenticated = response.is_authenticated;
 
                         if (ibadahs.length === 0) {
                             noDataState.show();
                         } else {
                             ibadahs.forEach((ibadah, index) => {
-                                const row = `
+                                let row = `
                                     <tr>
                                         <td>${index + 1 + (response.current_page - 1) * response.per_page}</td>
                                         <td>${formatDate(ibadah.tanggal_ibadah)}</td>
@@ -411,36 +433,40 @@
                                         <td>${truncateText(ibadah.tema_khotbah, 70)}</td>
                                         <td>
                                             <div class="action-buttons">
-                                                {{-- Tombol Lihat Detail: Langsung navigasi ke halaman detail penuh --}}
-                                                <a href="/ibadah/${ibadah.id}" class="btn btn-info btn-sm" title="Lihat Detail">
+                                                <a href="/ibadah/${ibadah.id}" class="btn btn-info btn-sm">
                                                     <i class="fas fa-eye"></i> Lihat
                                                 </a>
-                                                <button type="button" class="btn btn-warning btn-sm edit-ibadah-btn"
-                                                        data-bs-toggle="modal" data-bs-target="#editIbadahModal"
-                                                        data-id="${ibadah.id}"
-                                                        data-tanggal_ibadah="${ibadah.tanggal_ibadah}"
-                                                        data-nama_minggu="${ibadah.nama_minggu}"
-                                                        data-tema_khotbah="${ibadah.tema_khotbah}"
-                                                        data-version_code="${ibadah.version_code}"
-                                                        data-evangelium="${ibadah.evangelium}"
-                                                        data-epistel="${ibadah.epistel}"
-                                                        data-s_patik="${ibadah.s_patik}"
-                                                        data-daftar_ende='${JSON.stringify(ibadah.daftar_ende || [])}'
-                                                        title="Edit">
-                                                    <i class="fas fa-edit"></i> Edit
-                                                </button>
-                                                <button type="button" class="btn btn-danger btn-sm delete-ibadah-btn"
-                                                        data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal"
-                                                        data-id="${ibadah.id}" title="Hapus">
-                                                    <i class="fas fa-trash"></i> Hapus
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
                                 `;
+
+                                if (isAuthenticated) {
+                                    row += `
+                                        <button type="button" class="btn btn-warning btn-sm edit-ibadah-btn"
+                                                data-bs-toggle="modal" data-bs-target="#editIbadahModal"
+                                                data-id="${ibadah.id}"
+                                                data-tanggal_ibadah="${ibadah.tanggal_ibadah}"
+                                                data-nama_minggu="${ibadah.nama_minggu}"
+                                                data-tema_khotbah="${ibadah.tema_khotbah}"
+                                                data-version_code="${ibadah.version_code}"
+                                                data-evangelium="${ibadah.evangelium}"
+                                                data-epistel="${ibadah.epistel}"
+                                                data-s_patik="${ibadah.s_patik}"
+                                                data-daftar_ende='${JSON.stringify(ibadah.daftar_ende || [])}'
+                                                title="Edit">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                        <button type="button" class="btn btn-danger btn-sm delete-ibadah-btn"
+                                                data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal"
+                                                data-id="${ibadah.id}" title="Hapus">
+                                            <i class="fas fa-trash"></i> Hapus
+                                        </button>
+                                    `;
+                                }
+
+                                row += `</div></td></tr>`;
                                 ibadahTableBody.append(row);
                             });
                         }
+
                         loadingState.hide();
                         updatePagination(paginationLinks, response.current_page);
                     },

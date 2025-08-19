@@ -26,6 +26,11 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{{ route('home') }}">
+                            <i class="fas fa-home me-1"></i> Beranda
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{ route('index.alkitab') }}">
                             <i class="fas fa-book-open me-1"></i> Alkitab
                         </a>
@@ -39,6 +44,20 @@
                         <a class="nav-link" href="{{ route('ibadah.index') }}">
                             <i class="fas fa-calendar-alt me-1"></i> Manajemen Ibadah
                         </a>
+                    </li>
+                    <li class="nav-item">
+                        @if (auth()->check())
+                            <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                                @csrf
+                                <button type="submit" class="nav-link btn btn-link">
+                                    <i class="fas fa-sign-out me-1"></i> Logout
+                                </button>
+                            </form>
+                        @else
+                            <a class="nav-link" href="{{ route('index.login') }}">
+                                <i class="fas fa-sign-in me-1"></i> Login
+                            </a>
+                        @endif
                     </li>
                 </ul>
             </div>
@@ -111,7 +130,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h3 class="worship-title mb-0">
                         <i class="fas fa-cross me-2" style="color: var(--primary-gold);"></i>
-                        Lagu Ibadah Hari Ini
+                        Lagu Ibadah Terakhir
                     </h3>
                     <a href="{{ route('ibadah.show', $ibadah->id) }}" class="btn btn-outline-primary rounded-pill">
                         <i class="fas fa-eye me-2"></i> Lihat Selengkapnya

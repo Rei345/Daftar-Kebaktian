@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ibadah;
-use Illuminate\Http\Request; // Pastikan ini di-import
-use App\Models\AlkitabVersion; 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 
@@ -19,7 +19,13 @@ class IbadahController extends Controller
 
         if ($request->ajax() || $request->wantsJson()) {
             Log::info("Return JSON dari /ibadah", ['count' => $ibadahs->count()]);
-            return response()->json($ibadahs); 
+            return response()->json([
+                'data' => $ibadahs->items(),   // isi data array
+                'current_page' => $ibadahs->currentPage(),
+                'per_page' => $ibadahs->perPage(),
+                'links' => $ibadahs->linkCollection(),
+                'is_authenticated' => Auth::check(),
+            ]); 
         }
 
         $versions = config('bible_versions.versions');

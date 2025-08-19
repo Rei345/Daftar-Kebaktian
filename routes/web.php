@@ -3,8 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EndeController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\IbadahController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\KitabController;
+use App\Http\Controllers\IbadahController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,12 +30,17 @@ Route::get('/alkitab', [KitabController::class, 'index'])->name('index.alkitab')
 Route::get('/alkitab/search-process', [KitabController::class, 'processSearch'])->name('alkitab.search');
 
 // Manajemen Ibadah Routes
-Route::resource('ibadah', IbadahController::class)->except(['create', 'edit']);
+Route::get('/ibadah', [IbadahController::class, 'index'])->name('ibadah.index');
+Route::resource('ibadah', IbadahController::class)->except(['index', 'create', 'edit', 'show'])->middleware('auth');
 
-// Override route 'show' untuk Ibadah agar bisa menangani request AJAX dan non-AJAX
+// Ibadah (Worship) Routes
 Route::get('/ibadah/{ibadah}', [IbadahController::class, 'show'])->name('ibadah.show');
 
-// Home Search Routes (jika ini terkait dengan pencarian di halaman utama)
+// Alkitab and Ende Home Search Routes
 Route::get('/alkitab-home/search', [HomeController::class, 'alkitabSearch'])->name('alkitab-home.search');
 Route::get('/ende-home/search', [HomeController::class, 'endeSearch'])->name('ende-home.search');
 
+// Login Route
+Route::get('/login', [UserController::class, 'index'])->name('index.login');
+Route::post('/login/process', [UserController::class, 'processLogin'])->name('login.process');
+Route::post('/logout', [UserController::class, 'logout'])->name('logout');
