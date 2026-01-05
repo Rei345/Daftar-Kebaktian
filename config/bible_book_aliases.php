@@ -45,7 +45,7 @@ return [
         'mat' => ['matius', 'matthew', 'mateus', 'matt'],
         'mar' => ['markus', 'mark', 'mrk'],
         'luk' => ['lukas', 'luke', 'luk'],
-        'yoh' => ['yohanes', 'john', 'jonannes', 'joh'],
+        'yoh' => ['yohanes', 'john', 'johannes', 'joh'],
         'kis' => ['kisah para rasul', 'acts', 'ulaon ni apostel', 'acts'],
         'rom' => ['roma', 'romans', 'rom'],
         '1 kor' => ['1 korintus', '1 corinthians', '1 korint', '1 co'],
